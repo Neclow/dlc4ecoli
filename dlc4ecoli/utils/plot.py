@@ -7,7 +7,7 @@ import seaborn as sns
 
 from statannotations.Annotator import Annotator
 
-from config import PVALUE_MAP
+from ..config import PVALUE_MAP
 
 
 def clear_axes(
@@ -87,6 +87,8 @@ def set_size(width, layout="h", fraction=1):
         fig_height_in = fig_width_in / golden_ratio
     elif layout == "s":
         fig_height_in = fig_width_in
+    else:
+        raise ValueError(f"Unkown value for `layout`: {layout}")
 
     fig_dim = (fig_width_in, fig_height_in)
 
@@ -107,10 +109,11 @@ def annotate_plot(ax, plot_params, pvalues):
 
     annotator = Annotator(ax, pairs=pairs, **plot_params)
 
+    annotator.hide_non_significant = True
     annotator.perform_stat_test = False
     annotator._pvalue_format.pvalue_thresholds = PVALUE_MAP
     annotator._pvalue_format._correction_format = "replace"
 
     annotator.configure(text_format="star", loc="inside", fontsize=12)
 
-    annotator.set_pvalues_and_annotate(pvalues=pvalues, hide_non_signif=True)
+    annotator.set_pvalues_and_annotate(pvalues=pvalues)

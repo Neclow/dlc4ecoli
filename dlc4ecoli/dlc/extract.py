@@ -7,18 +7,13 @@ import os
 from argparse import ArgumentParser
 from glob import glob
 from pathlib import Path
+
 import pandas as pd
 
-from config import FOOD_AREAS
-from postprocessing import (
-    build_summary,
-    clean_data,
-    filter_outliers,
-    get_body_area_change,
-    get_length,
-    get_travel,
-    get_time_near_source,
-)
+from .data import build_summary, prepare_data
+from .features import get_body_area_change, get_length, get_time_near_source, get_travel
+from .signal import filter_outliers
+from ..config import FOOD_AREAS
 
 pd.options.mode.copy_on_write = True
 
@@ -58,7 +53,7 @@ def extract_features(dlc_files):
         df_raw = pd.read_csv(file, header=[1, 2, 3], index_col=0)
 
         # Remove low-likelihood points and interpolate
-        pos_df, _ = clean_data(df_raw)
+        pos_df, _ = prepare_data(df_raw)
 
         # Head-to-saddle distnace
         head_to_saddle = get_length(pos_df, "head", "saddle")

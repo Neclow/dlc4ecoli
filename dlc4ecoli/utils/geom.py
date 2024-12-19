@@ -16,7 +16,7 @@ def shoelace(coords):
 
     Returns
     -------
-    numpy.ndarray
+    area : numpy.ndarray
         Polygon at each frame
     """
     x_pos, y_pos = coords.copy().T
@@ -73,8 +73,8 @@ def scale_rectangle(rectangle, factor):
 
     Returns
     -------
-    _type_
-        _description_
+    enlarged_rectangle : numpy.ndarray of size (4, 2)
+        Enlarged rectangle
     """
     # Calculate the difference between each vertex and the center
     center = rectangle.mean(0)
