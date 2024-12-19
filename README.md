@@ -25,7 +25,7 @@ Available soon
 #### Feature extraction from DeepLabCut predictions
 
 ```bash
-python extract_features --path /path/to/data
+python -m dlc4ecoli.dlc.extract --path /path/to/data
 ```
 
 #### Reproducing the figures
