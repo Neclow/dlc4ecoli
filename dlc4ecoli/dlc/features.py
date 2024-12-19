@@ -1,7 +1,7 @@
 import numpy as np
 
-from .signal import derive
 from ..utils.geom import is_point_inside_convex_quadrilateral, scale_rectangle, shoelace
+from ..utils.signal import derive
 
 
 def get_length(pos_df, a="head", b="saddle"):

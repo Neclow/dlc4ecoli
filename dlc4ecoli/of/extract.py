@@ -12,8 +12,8 @@ from torchinfo import summary
 from torch import nn
 from tqdm import tqdm
 
-from .data import load_n_frames, transform
-from .features import get_stats
+from .data import build_summary, load_n_frames, transform
+from .features import get_stats, STATS
 from .models import load_model
 from ..utils.video import get_video_info
 
@@ -63,6 +63,8 @@ def parse_args():
     parser.add_argument(
         "--scale", type=float, default=1.0, help="Scaling size of the image"
     )
+
+    parser.add_argument("--agg", choices=("mean", "median"), help="Aggregation mode")
 
     return parser.parse_args()
 
@@ -122,7 +124,7 @@ def run_optical_flow_single(model_name, video, model, batch_size, device, scale=
     return flow_stats
 
 
-def run():
+def main():
     args = parse_args()
 
     print("Configuration")
@@ -178,6 +180,13 @@ def run():
     with open(f"{output_folder}/cfg.json", "w", encoding="utf-8") as f:
         json.dump(vars(args), f, indent=4)
 
+    of_agg = build_summary(output_folder, agg=args.agg)
+
+    for i, stat in enumerate(STATS):
+        of_agg.rename(columns={f"{args.agg}_{stat}": f"of_{stat}"}).loc[
+            :, ["video", f"of_{stat}", "camera", "Day"]
+        ].to_csv(f"data/of/summary_of_{stat}.csv")
+
 
 if __name__ == "__main__":
-    run()
+    main()

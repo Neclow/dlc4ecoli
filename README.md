@@ -49,5 +49,5 @@ install.packages(brms, envalysis, ggdist, ggplot2)
 Simply run the analysis.R script after setting the work directory to this repository
 
 ```bash
-setwd("path/to/dlc2ecoli")
+setwd("path/to/dlc4ecoli")
 ```

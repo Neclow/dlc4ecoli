@@ -1,5 +1,7 @@
 import torch
 
+STATS = ("mean", "var", "skew", "kurt")
+
 
 def get_stats(flow):
     stat_kwargs = {"dim": -1, "keepdim": True}

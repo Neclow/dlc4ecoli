@@ -1,26 +1,30 @@
 library(brms)
 library(envalysis)
+library(ggdist)
 library(ggplot2)
 
-regressands <- c("travel", "delta_area", "near_food")
+folders <- c("dlc", "dlc", "dlc", "of", "of")
+regressands <- c("travel", "delta_area", "near_food", "of_mean", "of_var")
 
 labels <- c(
   "Distance travelled\n(px/px; normalised)",
   "Change in body area\n(px^2/px; normalised)",
-  "Time spent near\nfood source (%)"
+  "Time spent near\nfood source (%)",
+  "Optical flow mean",
+  "Optical flow variance"
 )
 
-load_data <- function(regressand) {
+load_data <- function(regressand, folder) {
   d <- na.omit(
     read.csv(
       paste(
-        "data/dlc/summary_", regressand, ".csv",
+        "data/", folder, "/summary_", regressand, ".csv",
         sep = ""
       )
     )
   )
 
-  d$camera_new <- as.factor(
+  d$group <- as.factor(
     ifelse(
       d$camera == 2,
       "Control",
@@ -47,7 +51,7 @@ compare_models <- function(
       as.formula(
         paste(
           regressand,
-          "~ camera_new + (1 | Day)"
+          "~ group + (1 | Day)"
         )
       ),
       data = d,
@@ -63,11 +67,11 @@ compare_models <- function(
   return(models)
 }
 
-save_results <- function(best_model, regressand) {
+save_results <- function(best_model, comp, regressand) {
   # Save model
   saveRDS(
     best_model,
-    paste("model/brms_", regressand, ".Rds", sep = "")
+    paste("data/brms/model_", regressand, ".Rds", sep = "")
   )
 
   # Save summary and predictions
@@ -110,18 +114,18 @@ plot_results <- function(model, regressand) {
 
 
 compute_ate <- function(d, model, regressand, label) {
-  data_control <- data.frame(camera_new = "Control", Day = unique(d$Day))
-  data_treatment <- data.frame(camera_new = "E. coli", Day = unique(d$Day))
+  data_control <- data.frame(group = "Control", Day = unique(d$Day))
+  data_treatment <- data.frame(group = "E. coli", Day = unique(d$Day))
 
   # Generate predictions for both groups
 
   pred_control <- posterior_epred(model, newdata = data_control)
   pred_treatment <- posterior_epred(model, newdata = data_treatment)
 
-  ate <- mean(pred_treatment) / mean(pred_control) # Here we could do differences (also interesting)
+  ate <- mean(pred_treatment) / mean(pred_control)
 
   # Print the ATE
-  cat(paste("Estimated ATE: ", ate))
+  cat(paste("Estimated ATE: ", ate), "\n")
 
   # Compute ratios for each posterior sample
   ate_samples <- rowMeans(pred_treatment) / rowMeans(pred_control)
@@ -130,8 +134,8 @@ compute_ate <- function(d, model, regressand, label) {
   ate_ci <- quantile(ate_samples, probs = c(0.025, 0.975))
 
   # Print the results
-  cat(paste("Mean ATE: ", mean(ate_samples)))
-  cat(paste("95% Credible Interval: [", ate_ci[1], ", ", ate_ci[2], "]"))
+  cat(paste("Mean ATE: ", mean(ate_samples)), "\n")
+  cat(paste("95% Credible Interval: [", ate_ci[1], ", ", ate_ci[2], "]"), "\n")
 
 
   # Plot it
@@ -155,8 +159,16 @@ compute_ate <- function(d, model, regressand, label) {
 
 for (i in seq_along(regressands)) {
   # Load data
-  cat("Loading data...")
-  d <- load_data(regressands[i])
+  cat("Loading data...", "\n")
+  d <- load_data(regressands[i], folders[i])
+
+  if (
+    paste("loo_compare_brms_", regressands[i], ".csv", sep = "") %in%
+      list.files("data/brms")
+  ) {
+    cat("Skipping", regressands[i], "\n")
+    next
+  }
 
   if (regressands[i] == "near_food") {
     families <- list(
@@ -164,7 +176,6 @@ for (i in seq_along(regressands)) {
       # so use zero-inflated version
       gaussian(),
       zero_inflated_beta(link = "logit")
-      # zero_inflated_beta(link = "identity")
     )
   } else {
     families <- list(
@@ -172,11 +183,10 @@ for (i in seq_along(regressands)) {
       # for dist travelled and delta_area
       gaussian(link = "identity"),
       Beta(link = "logit")
-      # Beta(link = "identity")
     )
   }
 
-  cat("Running models...")
+  cat("Running models...", "\n")
   models <- compare_models(d, families, regressands[i])
 
   comp <- loo_compare(x = Map(loo, models))
@@ -185,14 +195,14 @@ for (i in seq_along(regressands)) {
 
   best_model <- models[[best_model_name]]
 
-  cat("Save summary and predictions...")
-  save_results(best_model, regressands[i])
+  cat("Save summary and predictions...", "\n")
+  save_results(best_model, comp, regressands[i])
 
-  cat("Estimating ATEs...")
+  cat("Estimating ATEs...", "\n")
   compute_ate(d, best_model, regressands[i], labels[i])
 
-  cat("Making plots...")
+  cat("Making plots...", "\n")
   plot_results(best_model, regressands[i])
 
-  cat("Done")
+  cat("Done", "\n")
 }

@@ -12,8 +12,8 @@ import pandas as pd
 
 from .data import build_summary, prepare_data
 from .features import get_body_area_change, get_length, get_time_near_source, get_travel
-from .signal import filter_outliers
 from ..config import FOOD_AREAS
+from ..utils.signal import filter_outliers
 
 pd.options.mode.copy_on_write = True
 
