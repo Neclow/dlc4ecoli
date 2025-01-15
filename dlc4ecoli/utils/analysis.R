@@ -5,7 +5,6 @@ library(ggplot2)
 
 folders <- c("dlc", "dlc", "dlc", "of", "of")
 regressands <- c("travel", "delta_area", "near_food", "of_mean", "of_var")
-
 labels <- c(
   "Distance travelled\n(px/px; normalised)",
   "Change in body area\n(px^2/px; normalised)",
@@ -13,6 +12,7 @@ labels <- c(
   "Optical flow mean",
   "Optical flow variance"
 )
+overwrite <- FALSE
 
 load_data <- function(regressand, folder) {
   d <- na.omit(
@@ -41,7 +41,7 @@ load_data <- function(regressand, folder) {
 
 compare_models <- function(
     d, families, regressand,
-    adapt_delta = 0.99, max_treedepth = 15, seed = 42) {
+    adapt_delta = 0.995, max_treedepth = 15, seed = 42) {
   models <- list()
 
   for (j in seq_along(families)) {
@@ -71,23 +71,23 @@ save_results <- function(best_model, comp, regressand) {
   # Save model
   saveRDS(
     best_model,
-    paste("data/brms/model_", regressand, ".Rds", sep = "")
+    paste("data/brms/models/", regressand, ".Rds", sep = "")
   )
 
   # Save summary and predictions
   write.csv(
     predict(best_model),
-    paste("data/brms/preds_brms_", regressand, ".csv", sep = "")
+    paste("data/brms/preds/", regressand, ".csv", sep = "")
   )
 
   write.csv(
     summary(best_model)$fixed,
-    paste("data/brms/results_brms_", regressand, ".csv", sep = "")
+    paste("data/brms/results/", regressand, ".csv", sep = "")
   )
 
   write.csv(
     comp,
-    paste("data/brms/loo_compare_brms_", regressand, ".csv", sep = "")
+    paste("data/brms/loo_compare/", regressand, ".csv", sep = "")
   )
 }
 
@@ -163,8 +163,9 @@ for (i in seq_along(regressands)) {
   d <- load_data(regressands[i], folders[i])
 
   if (
-    paste("loo_compare_brms_", regressands[i], ".csv", sep = "") %in%
-      list.files("data/brms")
+    file.exists(
+      paste("data/brms/loo_compare/", regressands[i], ".csv", sep = "")
+    ) && !overwrite
   ) {
     cat("Skipping", regressands[i], "\n")
     next
@@ -180,13 +181,13 @@ for (i in seq_along(regressands)) {
   } else {
     families <- list(
       # Assume beta because x in (0, 1)
-      # for dist travelled and delta_area
+      # for travel, delta_area, of_mean and of_var
       gaussian(link = "identity"),
       Beta(link = "logit")
     )
   }
 
-  cat("Running models...", "\n")
+  cat(paste("Running models for ", regressands[i], sep = ""), "\n")
   models <- compare_models(d, families, regressands[i])
 
   comp <- loo_compare(x = Map(loo, models))

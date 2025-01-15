@@ -353,3 +353,11 @@ rsconnect/
 tmp/
 other_data/
 img/
+
+# My drafts
+drafts.ipynb
+drafts.py
+drafts.R
+Rplots.pdf
+
+data/brms/models
