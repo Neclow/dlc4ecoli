@@ -1,0 +1,12 @@
+{
+    "input_folder": "/home/nclow23/data/chicken-ecoli-full",
+    "model": "sea_raft",
+    "output_folder": "of3",
+    "ext": "mp4",
+    "batch_size": 32,
+    "device": "cuda:0",
+    "sea_raft_cfg": "spring-L",
+    "sea_raft_url": "MemorySlices/Tartan-C-T-TSKH-spring540x960-M",
+    "overwrite": true,
+    "scale": 0.5
+}
