@@ -358,6 +358,12 @@ img/
 drafts.ipynb
 drafts.py
 drafts.R
+tmp/
+
+# Plots
 Rplots.pdf
 
+# brms model outputs (too large)
 data/brms/models
+# Raw tracking data (too large)
+data/dlc/raw/
