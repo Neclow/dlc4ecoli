@@ -32,9 +32,28 @@ def parse_args():
 
 
 def extract_features(dlc_files):
-    all_travel = {}
+    """Feature extraction script
 
-    all_head_to_tail = {}
+    Parameters
+    ----------
+    dlc_files : list
+        list of .parquet files from DeepLabCut
+        the .csv outputs were converted to .parquet for storage efficiency
+
+    Returns
+    -------
+    all_travel : dict
+        Distance travelled
+    all_near_food : dict
+        % time near food
+    all_delta_areas : dict
+        Change in body area
+
+    All outputs are dictionary where:
+     - key = video code
+     - value = (n_frames, n_individuals) DataFrame
+    """
+    all_travel = {}
 
     all_near_food = {}
 
@@ -58,8 +77,6 @@ def extract_features(dlc_files):
         # Head-to-saddle distnace
         head_to_saddle = get_length(pos_df, "head", "saddle")
 
-        all_head_to_tail[code] = head_to_saddle.mean()
-
         # Distance travelled
         travel = get_travel(pos_df)
 
@@ -79,10 +96,18 @@ def extract_features(dlc_files):
             delta_areas.div(head_to_saddle), max_zscore=3
         ).mean()
 
-    return all_near_food, all_travel, all_near_food, all_delta_areas
+    return all_travel, all_near_food, all_delta_areas
 
 
 def main():
+    """
+    Main script
+
+    For each feature, we build a summary dataset with the following columns:
+    individuals, video, feature_name, camera, video_number, Day
+
+    The "camera" column is equivalent to a group
+    """
     args = parse_args()
 
     dlc_files = sorted(glob(f"{args.data_path}/*.csv"))
@@ -91,7 +116,7 @@ def main():
 
     feature_dicts = extract_features(dlc_files)
 
-    feature_keys = ["h2t", "travel", "near_food", "delta_area"]
+    feature_keys = ["travel", "near_food", "delta_area"]
 
     # Make summaries
     for feature_key, feature_dict in zip(feature_keys, feature_dicts):

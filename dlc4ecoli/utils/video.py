@@ -1,13 +1,35 @@
+"""Video utility functions"""
+
 from collections import namedtuple
 
 import cv2
 
-
 VideoInfo = namedtuple("VideoInfo", ["height", "width", "fps", "total_frames"])
 
 
-# Adapted from https://github.com/roboflow/supervision/blob/a9aad6727c9a0302199830c700fa169c5674d7a2/supervision/utils/video.py#L13
+# Adapted from
+# https://github.com/roboflow/supervision/blob/a9aad6727c9a0302199830c700fa169c5674d7a2/supervision/utils/video.py#L13
 def get_video_info(video_path):
+    """
+    Get video information from a path
+
+    Parameters
+    ----------
+    video_path : str
+        Path to a video file
+
+    Returns
+    -------
+    namedtuple (VideoInfo)
+        height : int
+            Video height
+        width : int
+            Video width
+        fps : float
+            Video frames per second
+        total_frames : int
+            Total number of frames
+    """
     video = cv2.VideoCapture(video_path)
 
     if not video.isOpened():

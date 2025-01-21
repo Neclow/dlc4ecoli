@@ -1,3 +1,5 @@
+"""Optical flow data loading and transforming"""
+
 from glob import glob
 from pathlib import Path
 
@@ -16,6 +18,26 @@ from ..utils.signal import smooth_signal
 
 
 def load_n_frames(video_path, start=0, end=None):
+    """Load n frames from a video file
+
+    Parameters
+    ----------
+    video_path : str
+        Path to a video file
+    start : int, optional
+        Start frame number, by default 0
+    end : int, optional
+        End frame number, by default None
+
+    Returns
+    -------
+    torch.Tensor
+        Frames loaded as a 4D tensor
+            T: time
+            C: channels
+            W: width
+            H: height
+    """
     # Output shape: T C W H
     return torch.stack(
         [
@@ -27,6 +49,21 @@ def load_n_frames(video_path, start=0, end=None):
 
 
 def transform(batch, size):
+    """Apply transforms to a batch of frames
+
+    Parameters
+    ----------
+    batch : torch.Tensor
+        Input batch of frames
+
+    size : tuple of int
+        Desired output frame size
+
+    Returns
+    -------
+    batch : torch.Tensor
+        Output batch of frames
+    """
     transform_list = [
         transforms.Resize(size=size, antialias=False),
         transforms.Normalize(mean=0.5, std=0.5),
@@ -40,6 +77,20 @@ def transform(batch, size):
 
 
 def build_summary(data_folder, agg="mean"):
+    """Build video-wise summary statistics from optical flow data
+
+    Parameters
+    ----------
+    data_folder : str
+        Path to data folder
+    agg : str, optional
+        Aggregation mode, by default "mean"
+
+    Returns
+    -------
+    of_agg : pd.DataFrame
+        Aggregate summary data for each file in data_folder
+    """
     if agg == "mean":
         agg_func = np.mean
     elif agg == "median":

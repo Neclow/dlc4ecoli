@@ -27,9 +27,6 @@ def prepare_data(df, dropna=False, limit_direction="forward", limit=FPS // 2):
     lik_df : pandas.DataFrame
         Likelihood of DLC predictions for each bodypart and frame
     """
-    # if smoothed:
-    #     df = df.apply(smooth_signal, **kwargs)
-
     pos_df, lik_df = [
         x
         for _, x in df.groupby(
@@ -54,6 +51,21 @@ def prepare_data(df, dropna=False, limit_direction="forward", limit=FPS // 2):
 
 
 def build_summary(data, value_name):
+    """
+    Build video-wise summary statistics from DLC data
+
+    Parameters
+    ----------
+    data : list of pandas.DataFrame
+        List of dataframes with DLC predictions
+    value_name : str
+        Name of the value column in the summary DataFrame
+
+    Returns
+    -------
+    summary_df : pandas.DataFrame
+        Summary data for each individual in each video
+    """
     summary_df = (
         pd.concat(data, axis=1)
         .reset_index(names="individuals")

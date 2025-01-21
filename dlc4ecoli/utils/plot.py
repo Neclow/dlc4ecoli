@@ -15,6 +15,8 @@ def clear_axes(
 ):
     """A more forcing version of sns.despine.
 
+    From: https://gist.github.com/Neclow/91867667fdc463c0f36aaa7a26e84e0e
+
     Parameters
     ----------
     ax : matplotlib axes, optional
@@ -31,6 +33,7 @@ def clear_axes(
 
     for ax_i in axes:
         sns.despine(ax=ax_i, top=top, bottom=bottom, left=left, right=right)
+
         if minorticks_off:
             ax_i.minorticks_off()
 
@@ -49,7 +52,7 @@ def clear_axes(
 def set_size(width, layout="h", fraction=1):
     """Set figure dimensions in inches to avoid scaling in LaTeX.
 
-    Adapted from: https://jwalton.info/Embed-Publication-Matplotlib-Latex/
+    From: https://gist.github.com/Neclow/5d0bf39c372596c0de80f7ed5378aa6b
 
     Parameters
     ----------
@@ -96,6 +99,17 @@ def set_size(width, layout="h", fraction=1):
 
 
 def annotate_plot(ax, plot_params, pvalues):
+    """Annotate a plot with p-values.
+
+    Parameters
+    ----------
+    ax : matplotlib axes.Axes
+        Current axes object
+    plot_params : dict
+        Plot parameters fed into seaborn
+    pvalues : array-like
+        list or array of p-values for each pair comparison
+    """
     if "hue" in plot_params:
         x_values = sorted(set(plot_params["data"][plot_params["x"]]))
         hue_values = set(plot_params["data"][plot_params["hue"]])
@@ -111,8 +125,10 @@ def annotate_plot(ax, plot_params, pvalues):
 
     annotator.hide_non_significant = True
     annotator.perform_stat_test = False
+    # pylint: disable=protected-access
     annotator._pvalue_format.pvalue_thresholds = PVALUE_MAP
     annotator._pvalue_format._correction_format = "replace"
+    # pylint: enable=protected-access
 
     annotator.configure(text_format="star", loc="inside", fontsize=12)
 

@@ -1,9 +1,24 @@
+"""Optical flow features"""
+
 import torch
 
 STATS = ("mean", "var", "skew", "kurt")
 
 
 def get_stats(flow):
+    """
+    Get optical flow statistics for each frame
+
+    Parameters
+    ----------
+    flow : torch.Tensor
+        Optical flow tensor, N x 2 x H x W
+
+    Returns
+    -------
+    f_stats : torch.Tensor
+        Mean, variance, skewness, kurtosis of the optical flow for each frame
+    """
     stat_kwargs = {"dim": -1, "keepdim": True}
 
     # N x 2 x H x W --> N x H x W --> N x (H x W)

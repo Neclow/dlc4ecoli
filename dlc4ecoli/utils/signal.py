@@ -1,3 +1,5 @@
+"""Signal processing utilities."""
+
 import numpy as np
 
 from scipy import signal
@@ -15,7 +17,7 @@ def smooth_signal(x, mode="savgol", window_len=15, polyorder=7, **kwargs):
 
     Might add Hampel filtering in a future version
 
-    Sources:
+    Source:
     # https://www.jneurosci.org/content/jneuro/early/2022/02/22/JNEUROSCI.0938-21.2022.full.pdf
 
     Parameters

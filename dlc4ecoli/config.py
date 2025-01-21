@@ -20,7 +20,8 @@ FPS: Final = 30  # Hz
 MAX_DURATION: Final = 360  # s
 
 # Minimum DLC acceptable likelihood
-# Recommended: 0.8 from https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#plotting-results
+# Recommended: 0.8
+# https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#plotting-results
 MIN_LIKELIHOOD: Final = 0.9
 
 # Threshold for number of NaNs

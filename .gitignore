@@ -352,13 +352,11 @@ rsconnect/
 # Other folders
 tmp/
 other_data/
-img/
 
 # My drafts
 drafts.ipynb
 drafts.py
 drafts.R
-tmp/
 
 # Plots
 Rplots.pdf
