@@ -28,11 +28,13 @@ def parse_args():
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
-    parser.add_argument("input_folder", type=str, help="Input video folder")
+    parser.add_argument("input_dir", type=str, help="Input video folder")
 
-    parser.add_argument("model_name", type=str, help="Optical flow model name")
+    parser.add_argument(
+        "--model_name", type=str, default="sea_raft", help="Optical flow model name"
+    )
 
-    parser.add_argument("--output_folder", type=str, help="Output folder", default="of")
+    parser.add_argument("--output_dir", type=str, help="Output folder", default="of")
 
     parser.add_argument(
         "--ext",
@@ -160,10 +162,10 @@ def main():
     for k, v in vars(args).items():
         print(f"\t{k}: {v}")
 
-    videos = sorted(glob(f"{args.input_folder}/*.mp4"))
+    videos = sorted(glob(f"{args.input_dir}/*.mp4"))
 
-    output_folder = f"{args.input_folder}/{args.output_folder}"
-    os.makedirs(output_folder, exist_ok=True)
+    output_dir = f"{args.input_dir}/{args.output_dir}"
+    os.makedirs(output_dir, exist_ok=True)
 
     print(f"Found {len(videos)} videos.")
     assert len(videos) > 0
@@ -194,12 +196,12 @@ def main():
     for i, video in enumerate(videos):
         camera = os.path.basename(Path(video).parent)
 
-        of_camera_folder = f"{output_folder}/{camera}"
-        os.makedirs(of_camera_folder, exist_ok=True)
+        of_camera_dir = f"{output_dir}/{camera}"
+        os.makedirs(of_camera_dir, exist_ok=True)
 
         stem = Path(video).stem
 
-        output_file = f"{of_camera_folder}/{stem}.pt"
+        output_file = f"{of_camera_dir}/{stem}.pt"
 
         print(f"Processing video {i+1}/{len(videos)} ({camera}/{stem})...")
 
@@ -218,15 +220,15 @@ def main():
 
         torch.save(flow_stats, output_file)
 
-    with open(f"{output_folder}/cfg.json", "w", encoding="utf-8") as f:
+    with open(f"{output_dir}/cfg.json", "w", encoding="utf-8") as f:
         json.dump(vars(args), f, indent=4)
 
-    of_agg = build_summary(output_folder, agg=args.agg)
+    of_agg = build_summary(output_dir, agg=args.agg)
 
     for i, stat in enumerate(STATS):
         of_agg.rename(columns={f"{args.agg}_{stat}": f"of_{stat}"}).loc[
             :, ["video", f"of_{stat}", "camera", "Day"]
-        ].to_csv(f"data/{args.output_folder}/summary_of_{stat}.csv")
+        ].to_csv(f"data/{args.output_dir}/summary_of_{stat}.csv")
 
 
 if __name__ == "__main__":

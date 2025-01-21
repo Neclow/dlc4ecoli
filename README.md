@@ -22,17 +22,25 @@ conda env create -f env.yml
 
 Available soon
 
+Data is available at <https://zenodo.org/records/14712492>
+
 #### Feature extraction from DeepLabCut predictions
 
 ```bash
-python -m dlc4ecoli.dlc.extract --path /path/to/data
+python -m dlc4ecoli.dlc.extract /path/to/data
+```
+
+#### Optical flow feature extraction
+
+```bash
+python -m dlc4ecoli.of.extract /path/to/data
 ```
 
 #### Reproducing the figures
 
 You can reproduce most figures by running the ```plots.ipynb``` notebook.
 
-The other brms figures are created from the R script (see below).
+The other brms figures are created from the R script in ```data/utils/analysis.R```
 
 ### R
 

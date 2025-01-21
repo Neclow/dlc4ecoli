@@ -24,7 +24,7 @@ def parse_args():
         description="Arguments for DLC feature extraction",
     )
     parser.add_argument(
-        "--data-path",
+        "input_dir",
         type=str,
         help="Path to data (.csv outputs from DeepLabCut)",
     )
@@ -110,7 +110,7 @@ def main():
     """
     args = parse_args()
 
-    dlc_files = sorted(glob(f"{args.data_path}/*.csv"))
+    dlc_files = sorted(glob(f"{args.input_dir}/*.csv"))
 
     print(f"Found {len(dlc_files)} files.")
 
